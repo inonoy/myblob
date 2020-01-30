@@ -115,7 +115,7 @@
                 
                 
                 
-                <a class="navbar-item search" title="Search" href="javascript:;">
+                <a class="navbar-item search" title="Suche" href="javascript:;">
                     <i class="fas fa-search"></i>
                 </a>
                 
@@ -141,7 +141,7 @@
                 <span class="level-item has-text-grey">
                     
                     
-                    12 minutes read (About 1848 words)
+                    12 minutes lesen (Über 1849 Worte)
                 </span>
                 
                 
@@ -157,143 +157,16 @@
             <h1 id="ArrayList和CopyOnWriteArrayList的增删改查实现原理"><a href="#ArrayList和CopyOnWriteArrayList的增删改查实现原理" class="headerlink" title="ArrayList和CopyOnWriteArrayList的增删改查实现原理"></a>ArrayList和CopyOnWriteArrayList的<strong>增删改查</strong>实现原理</h1><hr>
 <p>List接口方法视图：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">List</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Collection</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">size</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">contains</span><span class="params">(Object o)</span></span>;</span><br><span class="line">    <span class="function">Iterator&lt;E&gt; <span class="title">iterator</span><span class="params">()</span></span>;</span><br><span class="line">    Object[] toArray();</span><br><span class="line">    &lt;T&gt; T[] toArray(T[] a);</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object o)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">containsAll</span><span class="params">(Collection&lt;?&gt; c)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">addAll</span><span class="params">(Collection&lt;? extends E&gt; c)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">addAll</span><span class="params">(<span class="keyword">int</span> index, Collection&lt;? extends E&gt; c)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">removeAll</span><span class="params">(Collection&lt;?&gt; c)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">retainAll</span><span class="params">(Collection&lt;?&gt; c)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object o)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">E <span class="title">get</span><span class="params">(<span class="keyword">int</span> index)</span></span>;</span><br><span class="line">    <span class="function">E <span class="title">set</span><span class="params">(<span class="keyword">int</span> index, E element)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> index, E element)</span></span>;</span><br><span class="line">    <span class="function">E <span class="title">remove</span><span class="params">(<span class="keyword">int</span> index)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">indexOf</span><span class="params">(Object o)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">lastIndexOf</span><span class="params">(Object o)</span></span>;</span><br><span class="line">    <span class="function">ListIterator&lt;E&gt; <span class="title">listIterator</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">ListIterator&lt;E&gt; <span class="title">listIterator</span><span class="params">(<span class="keyword">int</span> index)</span></span>;</span><br><span class="line">    <span class="function">List&lt;E&gt; <span class="title">subList</span><span class="params">(<span class="keyword">int</span> fromIndex, <span class="keyword">int</span> toIndex)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="ArrayList的实现机制："><a href="#ArrayList的实现机制：" class="headerlink" title="ArrayList的实现机制："></a>ArrayList的实现机制：</h2><p>arraylist 底层实现为数组， 默认初始大小为10</p>
-<p>遇到需要扩容的状况，会采用  <strong>Arrays.copyOf</strong>  的方法进行数组的复制 具体的扩容策略为：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Object[] grow(<span class="keyword">int</span> minCapacity) &#123;</span><br><span class="line">    <span class="keyword">int</span> oldCapacity = elementData.length;</span><br><span class="line">    <span class="keyword">if</span> (oldCapacity &gt; <span class="number">0</span> || elementData != DEFAULTCAPACITY_EMPTY_ELEMENTDATA) &#123;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 扩容 最小值（minCapacity - oldCapacity实际为当前容量加1） </span></span><br><span class="line">       <span class="comment">// 扩容 理想值（oldCapacity&gt;&gt;1）</span></span><br><span class="line">       <span class="comment">//优先按照 理想值 进行扩容 </span></span><br><span class="line">          <span class="comment">//如果失败则对 最小值 扩容  </span></span><br><span class="line">        	<span class="comment">//如果还无法满足则 throw 异常</span></span><br><span class="line">       <span class="keyword">int</span> newCapacity = ArraysSupport.newLength(oldCapacity,</span><br><span class="line">                minCapacity - oldCapacity, <span class="comment">/* minimum growth */</span></span><br><span class="line">                oldCapacity &gt;&gt; <span class="number">1</span>           <span class="comment">/* preferred growth */</span>);</span><br><span class="line">        </span><br><span class="line">            </span><br><span class="line">        <span class="keyword">return</span> elementData = Arrays.copyOf(elementData, newCapacity);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> elementData = <span class="keyword">new</span> Object[Math.max(DEFAULT_CAPACITY, minCapacity)];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="ArrayList增删改查的方法："><a href="#ArrayList增删改查的方法：" class="headerlink" title="ArrayList增删改查的方法："></a>ArrayList增删改查的方法：</h2><p>增加元素方法：</p>
-<p>​    在ArrayList 内部 add()方法的重载都是基于本方法，在进行 增加元素之前只检查了数组容量</p>
-<p>​    </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(E e, Object[] elementData, <span class="keyword">int</span> s)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (s == elementData.length)</span><br><span class="line">           elementData = grow();</span><br><span class="line">       elementData[s] = e;</span><br><span class="line">       size = s + <span class="number">1</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-
-<p>对于指定 <strong>位置</strong> 进行增加的  <code>add(int index, E element)</code> 方法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">    rangeCheckForAdd(index);</span><br><span class="line">    modCount++;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> s;</span><br><span class="line">    Object[] elementData;</span><br><span class="line">    <span class="keyword">if</span> ((s = size) == (elementData = <span class="keyword">this</span>.elementData).length)</span><br><span class="line">        <span class="comment">//扩容 完成之后 再整体将 index 位置之后的所有元素 拷贝到index后一个位置</span></span><br><span class="line">        elementData = grow();</span><br><span class="line">    System.arraycopy(elementData, index,</span><br><span class="line">                     elementData, index + <span class="number">1</span>,</span><br><span class="line">                     s - index);</span><br><span class="line">    elementData[index] = element;</span><br><span class="line">    size = s + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<p>2) 删除</p>
-<p>删除有按照索引  <code>remove(int index)</code>删除  和 按照元素 <code>remove(Object o)</code> 删除两种</p>
-<p>下面为   <code>remove(int index)</code>中的核心方法 ：</p>
-<p>​        可以看见 对于指定位置的删除依然是采取 arraycopy()的思路</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">fastRemove</span><span class="params">(Object[] es, <span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">    modCount++;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> newSize;</span><br><span class="line">    <span class="keyword">if</span> ((newSize = size - <span class="number">1</span>) &gt; i)</span><br><span class="line">        System.arraycopy(es, i + <span class="number">1</span>, es, i, newSize - i);</span><br><span class="line">    es[size = newSize] = <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>下面为 <code>remove(Object o)</code> 的方法：</p>
-<p>​        可以看到即使是根据元素删除也是找到对应元素所在的下标 然后执行 快速删除 <code>fastRemove</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Object[] es = elementData;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> size = <span class="keyword">this</span>.size;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//label 语法   </span></span><br><span class="line">    found: &#123;</span><br><span class="line">        <span class="keyword">if</span> (o == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (; i &lt; size; i++)</span><br><span class="line">                <span class="keyword">if</span> (es[i] == <span class="keyword">null</span>)</span><br><span class="line">                    <span class="keyword">break</span> found;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (; i &lt; size; i++)</span><br><span class="line">                <span class="keyword">if</span> (o.equals(es[i]))</span><br><span class="line">                    <span class="keyword">break</span> found;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    fastRemove(es, i);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>3) 修改</p>
-<p>​    只需要判断 给定的index 是否合法即可</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">set</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">    Objects.checkIndex(index, size);</span><br><span class="line">    E oldValue = elementData(index);</span><br><span class="line">    elementData[index] = element;</span><br><span class="line">    <span class="keyword">return</span> oldValue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>4) 查询</p>
-<p>​    比较简单就不说了</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public E get(int index) &#123;</span><br><span class="line">    Objects.checkIndex(index, size);</span><br><span class="line">    return elementData(index);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结:"></a>总结:</h4><p>​    ArrayList的底层是数组，所以查询的时候直接根据索引可以很快找到对应的元素，改也是如此，找到index对应元素进行替换。而增加和删除就涉及到数组元素的移动，所以会比较慢。</p>
-<hr>
-<h2 id="CopyOnWriteArrayList"><a href="#CopyOnWriteArrayList" class="headerlink" title="CopyOnWriteArrayList"></a>CopyOnWriteArrayList</h2><p>CopyOnWrite是一种linux 底层技术，简而言之，在不同进程访问同一资源时，只有在写操作时，才会去复制新的数据。否则访问的丢失同一个资源。</p>
-<p>在查询数据的情况下，是没有限制的，而在修改的时候会基于原始数据做一份拷贝副本，随后在拷贝的副本上进行修改，在拷贝 &gt;&gt; 修改的整个过程中会通过锁来控制线程互斥，此时对于读线程而言并不会阻塞，最后会将拷贝副本重新替换到原始数据上，显然，这种特性实现的是  <strong>最终一致性</strong> 。</p>
-<h3 id="CopyOnWriteArrayList实现机制"><a href="#CopyOnWriteArrayList实现机制" class="headerlink" title="CopyOnWriteArrayList实现机制"></a>CopyOnWriteArrayList实现机制</h3><p>​    底层任然采用数组实现，相比于  <strong><em>ArrayList</em></strong>   的底层数组实现 ，CopyOnWriteArrayList 只使用了一个默认数组</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> <span class="keyword">volatile</span> Object[] array;</span><br></pre></td></tr></table></figure>
-
-<pre><code>构造器也相当简单，提供了如下三种构造方式：</code></pre><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">CopyOnWriteArrayList</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">CopyOnWriteArrayList</span><span class="params">(Collection&lt;? extends E&gt; c)</span> </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">CopyOnWriteArrayList</span><span class="params">(E[] toCopyIn)</span></span></span><br></pre></td></tr></table></figure>
-
-<p>​    </p>
-<h2 id="CopyOnWriteArrayList增删改查的方法："><a href="#CopyOnWriteArrayList增删改查的方法：" class="headerlink" title="CopyOnWriteArrayList增删改查的方法："></a>CopyOnWriteArrayList增删改查的方法：</h2><p>1) 增</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment">//比较简单没什么说的</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">           Object[] es = getArray();</span><br><span class="line">           <span class="keyword">int</span> len = es.length;</span><br><span class="line">           es = Arrays.copyOf(es, len + <span class="number">1</span>);</span><br><span class="line">           es[len] = e;</span><br><span class="line">           setArray(es);</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">           Object[] es = getArray();</span><br><span class="line">           <span class="keyword">int</span> len = es.length;</span><br><span class="line">           <span class="keyword">if</span> (index &gt; len || index &lt; <span class="number">0</span>)</span><br><span class="line">               <span class="keyword">throw</span> <span class="keyword">new</span> IndexOutOfBoundsException(outOfBounds(index, len));</span><br><span class="line">           Object[] newElements;</span><br><span class="line">           <span class="comment">//index 之后的位置</span></span><br><span class="line">           <span class="keyword">int</span> numMoved = len - index;</span><br><span class="line">           <span class="keyword">if</span> (numMoved == <span class="number">0</span>)</span><br><span class="line">               <span class="comment">//无多余位置（index为最后一个）需要在拷贝时进行 +1 扩容</span></span><br><span class="line">               newElements = Arrays.copyOf(es, len + <span class="number">1</span>);</span><br><span class="line">           <span class="keyword">else</span> &#123;</span><br><span class="line">               <span class="comment">//数组有多余位置（index在中间位置）</span></span><br><span class="line">               newElements = <span class="keyword">new</span> Object[len + <span class="number">1</span>];</span><br><span class="line">               <span class="comment">//分两次进行拷贝</span></span><br><span class="line">               System.arraycopy(es, <span class="number">0</span>, newElements, <span class="number">0</span>, index);</span><br><span class="line">               System.arraycopy(es, index, newElements, index + <span class="number">1</span>,</span><br><span class="line">                                numMoved);</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//最后将element 放入index位置</span></span><br><span class="line">           newElements[index] = element;</span><br><span class="line">           <span class="comment">//将拷贝之后的数组再回写到原始数据</span></span><br><span class="line">           setArray(newElements);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>2)删除</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">  <span class="function"><span class="keyword">public</span> E <span class="title">remove</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">           Object[] es = getArray();</span><br><span class="line">           <span class="keyword">int</span> len = es.length;</span><br><span class="line">           <span class="comment">//通过内置方法获取元素值</span></span><br><span class="line">           E oldValue = elementAt(es, index);</span><br><span class="line">           <span class="comment">//找寻index之后元素需要移动的个数</span></span><br><span class="line">           <span class="keyword">int</span> numMoved = len - index - <span class="number">1</span>;</span><br><span class="line">           Object[] newElements;</span><br><span class="line">           <span class="keyword">if</span> (numMoved == <span class="number">0</span>)</span><br><span class="line">               newElements = Arrays.copyOf(es, len - <span class="number">1</span>);</span><br><span class="line">           <span class="keyword">else</span> &#123;</span><br><span class="line">               <span class="comment">//申请新的数组</span></span><br><span class="line">               newElements = <span class="keyword">new</span> Object[len - <span class="number">1</span>];</span><br><span class="line">               <span class="comment">//从index 分前后两次拷贝</span></span><br><span class="line">               System.arraycopy(es, <span class="number">0</span>, newElements, <span class="number">0</span>, index);</span><br><span class="line">               System.arraycopy(es, index + <span class="number">1</span>, newElements, index,</span><br><span class="line">                                numMoved);</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//回写到原始数据</span></span><br><span class="line">           setArray(newElements);</span><br><span class="line">           <span class="keyword">return</span> oldValue;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//根据一个对象 删除元素	</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">       Object[] snapshot = getArray();</span><br><span class="line">       <span class="comment">//查询第一次出现的 元素 o 的位置index</span></span><br><span class="line">       <span class="keyword">int</span> index = indexOfRange(o, snapshot, <span class="number">0</span>, snapshot.length);</span><br><span class="line">       <span class="keyword">return</span> index &gt;= <span class="number">0</span> &amp;&amp; remove(o, snapshot, index);</span><br><span class="line">   &#125;</span><br><span class="line"><span class="comment">//从一段数组快照中通过index删除指定元素</span></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object o, Object[] snapshot, <span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">           Object[] current = getArray();</span><br><span class="line">           <span class="keyword">int</span> len = current.length;</span><br><span class="line">           <span class="comment">//snapshot是在上锁之前读取的; 而current是最新的,已经被上锁保护不会被修改的 </span></span><br><span class="line">           <span class="comment">//如果二者不相等(任何修改操作都会产生回写)， 则证明需要重新定位待删除元素的位置</span></span><br><span class="line">           <span class="comment">//这时候会由三种情况 </span></span><br><span class="line">               <span class="comment">//1 index 是尾部且已经被删除</span></span><br><span class="line">               <span class="comment">//2 index在中间但位置已经改变</span></span><br><span class="line">               <span class="comment">//3 index位置未被改变</span></span><br><span class="line">           <span class="keyword">if</span> (snapshot != current) findIndex: &#123;</span><br><span class="line">               <span class="keyword">int</span> prefix = Math.min(index, len);</span><br><span class="line">               <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; prefix; i++) &#123;</span><br><span class="line">                   <span class="keyword">if</span> (current[i] != snapshot[i]</span><br><span class="line">                       &amp;&amp; Objects.equals(o, current[i])) &#123;</span><br><span class="line">                       index = i;</span><br><span class="line">                       <span class="keyword">break</span> findIndex;</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line">               <span class="keyword">if</span> (index &gt;= len)</span><br><span class="line">                   <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">               <span class="keyword">if</span> (current[index] == o)</span><br><span class="line">                   <span class="keyword">break</span> findIndex;</span><br><span class="line">               index = indexOfRange(o, current, index, len);</span><br><span class="line">               <span class="keyword">if</span> (index &lt; <span class="number">0</span>)</span><br><span class="line">                   <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//找到位置之后 ，采用复制的方式对 index 前后元素进行操作</span></span><br><span class="line">           Object[] newElements = <span class="keyword">new</span> Object[len - <span class="number">1</span>];</span><br><span class="line">           System.arraycopy(current, <span class="number">0</span>, newElements, <span class="number">0</span>, index);</span><br><span class="line">           System.arraycopy(current, index + <span class="number">1</span>,</span><br><span class="line">                            newElements, index,</span><br><span class="line">                            len - index - <span class="number">1</span>);</span><br><span class="line">           setArray(newElements);</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>3) 修改</p>
-<p>​    可以见到这里进行了 <strong>加锁</strong> 以及 <strong>拷贝&amp;回写</strong> 的操作</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">set</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">        Object[] es = getArray();</span><br><span class="line">        E oldValue = elementAt(es, index);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (oldValue != element) &#123;</span><br><span class="line">            es = es.clone();</span><br><span class="line">            es[index] = element;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// Ensure volatile write semantics even when oldvalue == element</span></span><br><span class="line">        setArray(es);</span><br><span class="line">        <span class="keyword">return</span> oldValue;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>4) 查找</p>
-<p>​    查找非常简单 没有涉及到锁</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">get</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> elementAt(getArray(), index);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line"><span class="keyword">static</span> &lt;E&gt; <span class="function">E <span class="title">elementAt</span><span class="params">(Object[] a, <span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (E) a[index];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h4 id="总结-1"><a href="#总结-1" class="headerlink" title="总结:"></a>总结:</h4><p>​    从以上的增删改查中我们可以发现，增删改都需要获得锁，并且锁只有一把，而读操作不需要获得锁，支持并发。为什么增删改中都需要创建一个新的数组，操作完成之后再赋给原来的引用？这是为了保证get的时候都能获取到元素，如果在增删改过程直接修改原来的数组，可能会造成执行读操作获取不到数据。</p>
-
         </div>
         
         
-        
-    </div>
-</div>
-
-
-
-
-
-
-
-
-    
-<div class="card">
-    
-    <div class="card-content article ">
-        
-        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
-            <div class="level-left">
-                <time class="level-item has-text-grey" datetime="2020-01-30T08:07:29.345Z">2020-01-30</time>
-                
-                
-                <span class="level-item has-text-grey">
-                    
-                    
-                    a minute read (About 123 words)
-                </span>
-                
-                
+        <div class="level is-mobile">
+            <div class="level-start">
+                <div class="level-item">
+                <a class="button is-size-7 is-light" href="/myblob/2020/01/30/ArrayList/#more">Mehr lesen</a>
+                </div>
             </div>
         </div>
-        
-        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
-            
-                <a class="has-link-black-ter" href="/myblob/2020/01/30/hello-world/">Hello World</a>
-            
-        </h1>
-        <div class="content">
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-        </div>
-        
         
         
     </div>
@@ -347,11 +220,11 @@
             <div class="level-item has-text-centered is-marginless">
                 <div>
                     <p class="heading">
-                        Posts
+                        Post
                     </p>
                     <a href="/myblob/archives">
                         <p class="title has-text-weight-normal">
-                            2
+                            1
                         </p>
                     </a>
                 </div>
@@ -359,7 +232,7 @@
             <div class="level-item has-text-centered is-marginless">
                 <div>
                     <p class="heading">
-                        Categories
+                        Kategorien
                     </p>
                     <a href="/myblob/categories">
                         <p class="title has-text-weight-normal">
@@ -384,7 +257,7 @@
         
         <div class="level">
             <a class="level-item button is-link is-rounded" href="https://github.com/ppoffice" target="_blank" rel="noopener">
-                Follow</a>
+                Folgen</a>
         </div>
         
         
@@ -474,7 +347,7 @@
     <div class="card-content">
         <div class="menu">
             <h3 class="menu-label">
-                Categories
+                Kategorien
             </h3>
             <ul class="menu-list">
             
@@ -491,7 +364,7 @@
             <div class="card widget">
     <div class="card-content">
         <h3 class="menu-label">
-            Recent
+            Letzte Einträge
         </h3>
         
         <article class="media">
@@ -513,25 +386,6 @@
             </div>
         </article>
         
-        <article class="media">
-            
-            <a href="/myblob/2020/01/30/hello-world/" class="media-left">
-                <p class="image is-64x64">
-                    <img class="thumbnail" src="/myblob/images/thumbnail.svg" alt="Hello World">
-                </p>
-            </a>
-            
-            <div class="media-content">
-                <div class="content">
-                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-01-30T08:07:29.345Z">2020-01-30</time></div>
-                    <a href="/myblob/2020/01/30/hello-world/" class="title has-link-black-ter is-size-6 has-text-weight-normal">Hello World</a>
-                    <p class="is-size-7 is-uppercase">
-                        
-                    </p>
-                </div>
-            </div>
-        </article>
-        
     </div>
 </div>
         
@@ -539,7 +393,7 @@
     <div class="card-content">
         <div class="menu">
         <h3 class="menu-label">
-            Archives
+            Archive
         </h3>
         <ul class="menu-list">
         
@@ -549,7 +403,7 @@
                     <span class="level-item">January 2020</span>
                 </span>
                 <span class="level-end">
-                    <span class="level-item tag">2</span>
+                    <span class="level-item tag">1</span>
                 </span>
             </a>
         </li>
@@ -586,7 +440,7 @@
         <div class="card widget">
     <div class="card-content">
         <h3 class="menu-label">
-            Recent
+            Letzte Einträge
         </h3>
         
         <article class="media">
@@ -608,25 +462,6 @@
             </div>
         </article>
         
-        <article class="media">
-            
-            <a href="/myblob/2020/01/30/hello-world/" class="media-left">
-                <p class="image is-64x64">
-                    <img class="thumbnail" src="/myblob/images/thumbnail.svg" alt="Hello World">
-                </p>
-            </a>
-            
-            <div class="media-content">
-                <div class="content">
-                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-01-30T08:07:29.345Z">2020-01-30</time></div>
-                    <a href="/myblob/2020/01/30/hello-world/" class="title has-link-black-ter is-size-6 has-text-weight-normal">Hello World</a>
-                    <p class="is-size-7 is-uppercase">
-                        
-                    </p>
-                </div>
-            </div>
-        </article>
-        
     </div>
 </div>
     
@@ -634,7 +469,7 @@
     <div class="card-content">
         <div class="menu">
         <h3 class="menu-label">
-            Archives
+            Archive
         </h3>
         <ul class="menu-list">
         
@@ -644,7 +479,7 @@
                     <span class="level-item">January 2020</span>
                 </span>
                 <span class="level-end">
-                    <span class="level-item tag">2</span>
+                    <span class="level-item tag">1</span>
                 </span>
             </a>
         </li>
@@ -802,7 +637,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 
-<a id="back-to-top" title="Back to Top" href="javascript:;">
+<a id="back-to-top" title="Zurück nach oben" href="javascript:;">
     <i class="fas fa-chevron-up"></i>
 </a>
 <script src="/myblob/js/back-to-top.js" defer></script>
@@ -826,7 +661,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="searchbox ins-search">
     <div class="searchbox-container ins-search-container">
         <div class="searchbox-input-wrapper">
-            <input type="text" class="searchbox-input ins-search-input" placeholder="Type something..." />
+            <input type="text" class="searchbox-input ins-search-input" placeholder="Tippen Sie etwas..." />
             <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
         </div>
         <div class="searchbox-result-wrapper ins-section-wrapper">
@@ -839,10 +674,10 @@ document.addEventListener('DOMContentLoaded', function () {
         var INSIGHT_CONFIG = {
             TRANSLATION: {
                 POSTS: 'Posts',
-                PAGES: 'Pages',
-                CATEGORIES: 'Categories',
+                PAGES: 'Seiten',
+                CATEGORIES: 'Kategorien',
                 TAGS: 'Tags',
-                UNTITLED: '(Untitled)',
+                UNTITLED: '(Unbenannt)',
             },
             CONTENT_URL: '/myblob/content.json',
         };
