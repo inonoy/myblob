@@ -7,17 +7,19 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 
-<title>Tags - liuhoudun</title>
+<title>Unsigned - liuhoudun</title>
 
 
-    <meta name="description" content="my blob">
-<meta property="og:type" content="website">
-<meta property="og:title" content="liuhoudun">
-<meta property="og:url" content="http://nonoy.gitee.io/myblob/tags/index.html">
+    <meta name="description" content="java中unsigned类型的表示方式在java网络编程中经常使用到无符号类型，而在java中并没有无符号类型，基本类型中的数值类型都是带有符号的。所以在java 中为了表示一个无符号类型，最长使用的做法就是将长度短的数值 放在 更长的数值类型中保存（如将unsigned short 放入 int中）。在实际运用中 我们可以用 byte[]作为一个间接的容器来保存无符号数,当需要计算时在通过类型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unsigned">
+<meta property="og:url" content="http://nonoy.gitee.io/myblob/2020/02/20/Unsigned/index.html">
 <meta property="og:site_name" content="liuhoudun">
-<meta property="og:description" content="my blob">
+<meta property="og:description" content="java中unsigned类型的表示方式在java网络编程中经常使用到无符号类型，而在java中并没有无符号类型，基本类型中的数值类型都是带有符号的。所以在java 中为了表示一个无符号类型，最长使用的做法就是将长度短的数值 放在 更长的数值类型中保存（如将unsigned short 放入 int中）。在实际运用中 我们可以用 byte[]作为一个间接的容器来保存无符号数,当需要计算时在通过类型">
 <meta property="og:locale" content="cn">
 <meta property="og:image" content="http://nonoy.gitee.io/myblob/images/og_image.png">
+<meta property="article:published_time" content="2020-02-20T03:57:38.602Z">
+<meta property="article:modified_time" content="2020-02-13T09:40:13.777Z">
 <meta property="article:author" content="liu houdun">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://nonoy.gitee.io/myblob/images/og_image.png">
@@ -78,7 +80,7 @@
         <div class="navbar-brand is-flex-center">
             <a class="navbar-item navbar-logo" href="/myblob/">
             
-                <img src="/myblob/images/logo.svg" alt="liuhoudun" height="28">
+                <img src="/myblob/images/logo.svg" alt="Unsigned" height="28">
             
             </a>
         </div>
@@ -124,18 +126,179 @@
     <section class="section">
         <div class="container">
             <div class="columns">
-                <div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main"><div class="card widget">
-    <div class="card-content">
-        <div class="menu">
-            <h3 class="menu-label">
-                Tags
-            </h3>
-            <div class="field is-grouped is-grouped-multiline">
+                <div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main">
+<div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-02-20T03:57:38.602Z">2020-02-20</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    7 minutes lesen (Über 980 Worte)
+                </span>
+                
                 
             </div>
         </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                Unsigned
+            
+        </h1>
+        <div class="content">
+            <h1 id="java中unsigned类型的表示方式"><a href="#java中unsigned类型的表示方式" class="headerlink" title="java中unsigned类型的表示方式"></a>java中unsigned类型的表示方式</h1><p>在java网络编程中经常使用到无符号类型，而在java中并没有无符号类型，基本类型中的数值类型都是带有符号的。所以在java 中为了表示一个无符号类型，最长使用的做法就是将长度短的数值 放在 更长的数值类型中保存（如将unsigned short 放入 int中）。在实际运用中 我们可以用 byte[]作为一个间接的容器来保存无符号数,当需要计算时在通过<em><code>类型提升</code></em>，转换为空间要求最低的类型来进行计算。</p>
+<hr>
+<p>而关于如何做类型与byte[]做转换 ，首先要知道java 基本类型的长度大小:</p>
+<table>
+<thead>
+<tr>
+<th>基本类型</th>
+<th>大小</th>
+<th>最小值</th>
+<th align="left">最大值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>int</td>
+<td>32bit</td>
+<td>-2^31</td>
+<td align="left">+2^32-1</td>
+</tr>
+<tr>
+<td>short</td>
+<td>16bit</td>
+<td>-2^15</td>
+<td align="left">+2^15-1</td>
+</tr>
+<tr>
+<td>byte</td>
+<td>8bit</td>
+<td>-128</td>
+<td align="left">+127</td>
+</tr>
+<tr>
+<td>long</td>
+<td>64bit</td>
+<td>-2^63</td>
+<td align="left">+2^63-1</td>
+</tr>
+<tr>
+<td>float</td>
+<td>32bit</td>
+<td>IEEE754</td>
+<td align="left">IEEE754</td>
+</tr>
+<tr>
+<td>double</td>
+<td>64bit</td>
+<td>IEEE754</td>
+<td align="left">IEEE754</td>
+</tr>
+<tr>
+<td>char</td>
+<td>16bit</td>
+<td>Unicode 0</td>
+<td align="left">Unicode 2^16-1</td>
+</tr>
+<tr>
+<td>boolean</td>
+<td>1bit</td>
+<td>—-</td>
+<td align="left">—-</td>
+</tr>
+</tbody></table>
+<p>其次需要了解基本的位运算符和java 中的算术移位和逻辑移位运算,这里不做展开说明.</p>
+<p>最后要决定byte数组中元素的存储形式:采用大端还是小端模式进行存储</p>
+<hr>
+<p>下面来看一个 在 *<em>大端模式 *</em>下long 类型转换为 unsigned int ：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//long 转unsigned int</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] longToInt(<span class="keyword">int</span> m)&#123;</span><br><span class="line">    <span class="comment">//long中存储了一个无符号整形size_t</span></span><br><span class="line">    <span class="keyword">byte</span>[] result = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">4</span>];<span class="comment">//byte数组大小为int的长度 4字节</span></span><br><span class="line">    <span class="comment">//大端模式下 数据高位字节存储在byte[]中的低位</span></span><br><span class="line">    <span class="comment">//每8位数据进行一次数组append</span></span><br><span class="line">    result[<span class="number">0</span>] = (<span class="keyword">byte</span>) (m&gt;&gt;&gt;<span class="number">24</span>&amp;<span class="number">0xff</span>);</span><br><span class="line">    result[<span class="number">1</span>] = (<span class="keyword">byte</span>) (m&gt;&gt;&gt;<span class="number">16</span>&amp;<span class="number">0xff</span>);</span><br><span class="line">    result[<span class="number">2</span>] = (<span class="keyword">byte</span>) (m&gt;&gt;&gt;<span class="number">8</span>&amp;<span class="number">0xff</span>);</span><br><span class="line">    result[<span class="number">3</span>] = (<span class="keyword">byte</span>) (m&amp;<span class="number">0xff</span>);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>对大端模式下的byte数组数据转换为long进行计算，这里对byte数组低位数据(对应在数据的高位字节 )在数组长度超过8位时,进行舍弃:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//   unsigned_short --&gt; long   高位补0</span></span><br><span class="line"> <span class="comment">//采用长定点数存取短定点数 过长则保留低位</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">long</span> <span class="title">longValueOf</span><span class="params">(<span class="keyword">byte</span>[] b)</span></span>&#123;</span><br><span class="line">     <span class="keyword">long</span> result = <span class="number">0L</span>;</span><br><span class="line">     <span class="keyword">int</span> end = b.length-<span class="number">1</span>;</span><br><span class="line">     <span class="keyword">int</span> pos = -<span class="number">1</span>;</span><br><span class="line">     <span class="comment">//位数超过  取低位数据</span></span><br><span class="line">     <span class="keyword">if</span>(b.length&gt;<span class="number">8</span>)  pos = b.length-<span class="number">9</span>;</span><br><span class="line"></span><br><span class="line">     <span class="keyword">for</span>(<span class="keyword">int</span> i = end;i&gt;pos;i--)&#123;</span><br><span class="line">         <span class="comment">//从低位字节开始进行遍历 每次移动 都需要偏移到对应位数上</span></span><br><span class="line">         result+= (b[i] &amp; <span class="number">0xff</span>)&lt;&lt;((end-i)*<span class="number">8</span>);</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     <span class="keyword">return</span> result;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这样就完成了 在long中存取一个unsigned int数据  ，而在存储时可以通过byte数组存储;下面是对所有unsigned short 和 unsigned byte操作的代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//short 转unsigned byte</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] shortToByte(<span class="keyword">short</span> m)&#123;</span><br><span class="line">    <span class="keyword">byte</span>[] result = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1</span>];</span><br><span class="line">    <span class="comment">//result[0] = (byte) (m&gt;&gt;&gt;8&amp;0xff);</span></span><br><span class="line">    result[<span class="number">0</span>] = (<span class="keyword">byte</span>) (m&amp;<span class="number">0xff</span>);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// int 转 unsigned short</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] intToShort(<span class="keyword">int</span> m)&#123;</span><br><span class="line">    <span class="keyword">byte</span>[] result = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">2</span>];</span><br><span class="line">    result[<span class="number">0</span>] = (<span class="keyword">byte</span>) (m&gt;&gt;&gt;<span class="number">8</span>&amp;<span class="number">0xff</span>);</span><br><span class="line">    result[<span class="number">1</span>] = (<span class="keyword">byte</span>) (m&amp;<span class="number">0xff</span>);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//long 转unsigned int</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] longToInt(<span class="keyword">int</span> m)&#123;</span><br><span class="line">    <span class="keyword">byte</span>[] result = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">4</span>];</span><br><span class="line">    result[<span class="number">0</span>] = (<span class="keyword">byte</span>) (m&gt;&gt;&gt;<span class="number">24</span>&amp;<span class="number">0xff</span>);</span><br><span class="line">    result[<span class="number">1</span>] = (<span class="keyword">byte</span>) (m&gt;&gt;&gt;<span class="number">16</span>&amp;<span class="number">0xff</span>);</span><br><span class="line">    result[<span class="number">2</span>] = (<span class="keyword">byte</span>) (m&gt;&gt;&gt;<span class="number">8</span>&amp;<span class="number">0xff</span>);</span><br><span class="line">    result[<span class="number">3</span>] = (<span class="keyword">byte</span>) (m&amp;<span class="number">0xff</span>);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//   unsigned_short --&gt; long   高位补0</span></span><br><span class="line"><span class="comment">//采用长定点数存取短定点数 过长则保留低位</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">long</span> <span class="title">longValueOf</span><span class="params">(<span class="keyword">byte</span>[] b)</span></span>&#123;</span><br><span class="line">    <span class="keyword">long</span> result = <span class="number">0L</span>;</span><br><span class="line">    <span class="keyword">int</span> end = b.length-<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> pos = -<span class="number">1</span>;</span><br><span class="line">    <span class="comment">//位数超过  取低位数据</span></span><br><span class="line">    <span class="keyword">if</span>(b.length&gt;<span class="number">8</span>)  pos = b.length-<span class="number">9</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = end;i&gt;pos;i--)&#123;</span><br><span class="line">        <span class="comment">//从低位字节开始进行遍历 每次移动 都需要偏移到对应位数上</span></span><br><span class="line">        result+= (b[i] &amp; <span class="number">0xff</span>)&lt;&lt;((end-i)*<span class="number">8</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//   unsigned_short --&gt; long   高位补0</span></span><br><span class="line"><span class="comment">//采用长定点数存取短定点数 过长则保留低位</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">intValueOf</span><span class="params">(<span class="keyword">byte</span>[] b)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> result = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> end = b.length-<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> pos = -<span class="number">1</span>;</span><br><span class="line">    <span class="comment">//位数超过  取低位数据</span></span><br><span class="line">    <span class="keyword">if</span>(b.length&gt;<span class="number">4</span>)  pos = b.length-<span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = end;i&gt;pos;i--)&#123;</span><br><span class="line">        <span class="comment">//从低位字节开始进行遍历 每次移动 都需要偏移到对应位数上</span></span><br><span class="line">        result+= (b[i] &amp; <span class="number">0xff</span>)&lt;&lt;((end-i)*<span class="number">8</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//   unsigned_short --&gt; long   高位补0</span></span><br><span class="line"><span class="comment">//采用长定点数存取短定点数 过长则保留低位</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">short</span> <span class="title">shortValueOf</span><span class="params">(<span class="keyword">byte</span>[] b)</span></span>&#123;</span><br><span class="line">    <span class="keyword">short</span> result = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> end = b.length-<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> pos = -<span class="number">1</span>;</span><br><span class="line">    <span class="comment">//位数超过  取低位数据</span></span><br><span class="line">    <span class="keyword">if</span>(b.length&gt;<span class="number">2</span>)  pos = b.length-<span class="number">3</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = end;i&gt;pos;i--)&#123;</span><br><span class="line">        <span class="comment">//从低位字节开始进行遍历 每次移动 都需要偏移到对应位数上</span></span><br><span class="line">        result+= (b[i] &amp; <span class="number">0xff</span>)&lt;&lt;((end-i)*<span class="number">8</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+        </div>
+        
+        
+        
     </div>
-</div></div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="menu-label has-text-centered">Gefällt Ihnen der Artikel? Unterstützen Sie den Autor mit</h3>
+        <div class="buttons is-centered">
+            
+                
+<div class="notification is-danger">
+    You forgot to set the <code>qrcode</code> for Alipay. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+                
+<div class="notification is-danger">
+    You forgot to set the <code>qrcode</code> for Wechat. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+                <!-- Visit https://www.paypal.com/donate/buttons/ to get your donate button -->
+
+<a class="button is-warning donate" onclick="document.getElementById(&#39;paypal-donate-form&#39;).submit()">
+    <span class="icon is-small">
+        <i class="fab fa-paypal"></i>
+    </span>
+    <span>Paypal</span>
+</a>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" rel="noopener" id="paypal-donate-form">
+    <input type="hidden" name="cmd" value="_donations" />
+    <input type="hidden" name="business" value="liuhoudun95@foxmail.com" />
+    <input type="hidden" name="currency_code" value="USD" />
+</form>
+
+                
+                
+<div class="notification is-danger">
+    You forgot to set the <code>url</code> Patreon. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+        </div>
+    </div>
+</div>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/myblob/2020/02/20/Reflect/">
+                <span class="level-item">Reflect</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
                 
 
 
@@ -630,7 +793,7 @@
             <div class="level-start has-text-centered-mobile">
                 <a class="footer-logo is-block has-mb-6" href="/myblob/">
                 
-                    <img src="/myblob/images/logo.svg" alt="liuhoudun" height="28">
+                    <img src="/myblob/images/logo.svg" alt="Unsigned" height="28">
                 
                 </a>
                 <p class="is-size-7">

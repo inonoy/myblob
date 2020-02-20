@@ -7,17 +7,19 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 
-<title>Tags - liuhoudun</title>
+<title>Reflect - liuhoudun</title>
 
 
-    <meta name="description" content="my blob">
-<meta property="og:type" content="website">
-<meta property="og:title" content="liuhoudun">
-<meta property="og:url" content="http://nonoy.gitee.io/myblob/tags/index.html">
+    <meta name="description" content="reflect 与 proxy要想理解反射的原理，首先要了解什么是类型信息。Java让我们在运行时识别对象和类的信息，主要有2种方式：一种是传统的RTTI，它假定我们在编译时已经知道了所有的类型信息；另一种是反射机制，它允许我们在运行时发现和使用类的信息。 jvm内存分布 jvm 加载流程 创建对象  一、Class对象​        .class  文件被加载到内存之后，jvm中会创建 jav">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reflect">
+<meta property="og:url" content="http://nonoy.gitee.io/myblob/2020/02/20/Reflect/index.html">
 <meta property="og:site_name" content="liuhoudun">
-<meta property="og:description" content="my blob">
+<meta property="og:description" content="reflect 与 proxy要想理解反射的原理，首先要了解什么是类型信息。Java让我们在运行时识别对象和类的信息，主要有2种方式：一种是传统的RTTI，它假定我们在编译时已经知道了所有的类型信息；另一种是反射机制，它允许我们在运行时发现和使用类的信息。 jvm内存分布 jvm 加载流程 创建对象  一、Class对象​        .class  文件被加载到内存之后，jvm中会创建 jav">
 <meta property="og:locale" content="cn">
 <meta property="og:image" content="http://nonoy.gitee.io/myblob/images/og_image.png">
+<meta property="article:published_time" content="2020-02-20T03:57:38.587Z">
+<meta property="article:modified_time" content="2020-02-19T10:28:14.074Z">
 <meta property="article:author" content="liu houdun">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://nonoy.gitee.io/myblob/images/og_image.png">
@@ -78,7 +80,7 @@
         <div class="navbar-brand is-flex-center">
             <a class="navbar-item navbar-logo" href="/myblob/">
             
-                <img src="/myblob/images/logo.svg" alt="liuhoudun" height="28">
+                <img src="/myblob/images/logo.svg" alt="Reflect" height="28">
             
             </a>
         </div>
@@ -124,18 +126,133 @@
     <section class="section">
         <div class="container">
             <div class="columns">
-                <div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main"><div class="card widget">
-    <div class="card-content">
-        <div class="menu">
-            <h3 class="menu-label">
-                Tags
-            </h3>
-            <div class="field is-grouped is-grouped-multiline">
+                <div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main">
+<div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-02-20T03:57:38.587Z">2020-02-20</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    6 minutes lesen (Über 852 Worte)
+                </span>
+                
                 
             </div>
         </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                Reflect
+            
+        </h1>
+        <div class="content">
+            <h1 id="reflect-与-proxy"><a href="#reflect-与-proxy" class="headerlink" title="reflect 与 proxy"></a>reflect 与 proxy</h1><p>要想理解反射的原理，首先要了解什么是类型信息。Java让我们在运行时识别对象和类的信息，主要有2种方式：一种是传统的RTTI，它假定我们在编译时已经知道了所有的类型信息；另一种是反射机制，它允许我们在运行时发现和使用类的信息。</p>
+<p>jvm内存分布</p>
+<p>jvm 加载流程</p>
+<p>创建对象</p>
+<hr>
+<h3 id="一、Class对象"><a href="#一、Class对象" class="headerlink" title="一、Class对象"></a>一、Class对象</h3><p>​        <code>.class</code>  文件被加载到内存之后，jvm中会创建 java.lang.Class 类型的对象，这也就是java中万物皆对象的由来，每一个Class对象都代表着一个 <code>.class</code>  文件的代码信息，Class对象仅在需要的时候才会加载。而静态代码在类加载器加载的时候就会执行。</p>
+<p>​        我们来看一段jdbc的example：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class.forName(<span class="string">"com.mysql.jdbc.Driver"</span>);</span><br><span class="line">Connection conn=DriverManager.getConnection(url,user,password);</span><br></pre></td></tr></table></figure>
+
+<p>​        这里的Class.forName(string str) 方法就是进行数据库驱动类的加载。这里在加载类会调用静态带码块中的内容进行驱动的注册。如果没有这行代码会怎么样呢？会提示没有注册驱动，而导致无法运行</p>
+<p>​        Class.forName（）方法在执行的过程中，类加载器会检查 需要加载的类是否已经被加载过，如果没有加载，默认的类加载器就会根据类名进行加载。</p>
+<p>同样为获取类的Class对象，以下两种方式获取的是不同的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class c1 &#x3D; Class.forName(&quot;com.nonoy.Test&quot;);</span><br><span class="line">Class c2 &#x3D; Test.Class;</span><br></pre></td></tr></table></figure>
+
+<p>Test.Class ，不会加载类中的静态代码,也就是静态代码不会被执行。类的加载一般有三个步骤：</p>
+<ul>
+<li>加载：由类加载器完成，找到对应的字节码，创建一个Class对象</li>
+<li>链接：验证类中的字节码，为静态域分配空间</li>
+<li>初始化：如果该类有超类，则对其初始化，执行静态初始化器和静态初始化块 </li>
+</ul>
+<p><strong>Note: 当需要进行向下转型时，编译器会通过类型检查判断是否合法，在向下转型前可以通过关键字instanceof 判断**</strong></p>
+<hr>
+<h3 id="二、反射基础"><a href="#二、反射基础" class="headerlink" title="二、反射基础"></a>二、反射基础</h3><p>​    java中的反射位于 java.lang.reflect 包中，提供了对于类的的 方法 （method），超类（superClass）， 接口（interface），属性（field）等进行的相关操作，当时用反射时，我们可以在跳过new关键字的范畴，动态的创建对象，简化类之间的依赖关系，提供高灵活性的程序。</p>
+<p>​    反射是在程序运行时打开 和检查.class 文件的。当通过反射操作一个未知对象时，JVM会检查这个对象，确定它是属于哪个类的。对于那个类而言，必须是可以获取的，但是这个类并不一定需要在本进程中，因为通过动态代理+网络编程，可以实现在另一个进程中获取到类的运行实例，并通过网络将结果传送回来,而这也是RPC框架的基础。</p>
+
+        </div>
+        
+        
+        
     </div>
-</div></div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="menu-label has-text-centered">Gefällt Ihnen der Artikel? Unterstützen Sie den Autor mit</h3>
+        <div class="buttons is-centered">
+            
+                
+<div class="notification is-danger">
+    You forgot to set the <code>qrcode</code> for Alipay. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+                
+<div class="notification is-danger">
+    You forgot to set the <code>qrcode</code> for Wechat. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+                <!-- Visit https://www.paypal.com/donate/buttons/ to get your donate button -->
+
+<a class="button is-warning donate" onclick="document.getElementById(&#39;paypal-donate-form&#39;).submit()">
+    <span class="icon is-small">
+        <i class="fab fa-paypal"></i>
+    </span>
+    <span>Paypal</span>
+</a>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" rel="noopener" id="paypal-donate-form">
+    <input type="hidden" name="cmd" value="_donations" />
+    <input type="hidden" name="business" value="liuhoudun95@foxmail.com" />
+    <input type="hidden" name="currency_code" value="USD" />
+</form>
+
+                
+                
+<div class="notification is-danger">
+    You forgot to set the <code>url</code> Patreon. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+        </div>
+    </div>
+</div>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/myblob/2020/02/20/Unsigned/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">Unsigned</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/myblob/2020/02/20/ConcurrentHashMap/">
+                <span class="level-item">ConcurrentHashMap</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
                 
 
 
@@ -630,7 +747,7 @@
             <div class="level-start has-text-centered-mobile">
                 <a class="footer-logo is-block has-mb-6" href="/myblob/">
                 
-                    <img src="/myblob/images/logo.svg" alt="liuhoudun" height="28">
+                    <img src="/myblob/images/logo.svg" alt="Reflect" height="28">
                 
                 </a>
                 <p class="is-size-7">

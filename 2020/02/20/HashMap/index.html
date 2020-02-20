@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html  lang="cn">
+<head>
+    <meta charset="utf-8" />
+
+<meta name="generator" content="Hexo 4.2.0" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<title>HashMap - liuhoudun</title>
+
+
+    <meta name="description" content="HashMap 实现原理分析一.存储结构​    HashMap使用数组加entity链表的方式进行存储数据 ​    hash函数通过对象hashcode 算出 而对象的hashcode方法则依赖于native实现，hashcode可以理解为与对象存储地址相关。 本质上 算出hash值之后，只需要令hash值与数组长度取余 即可知道对象在数组中的index索引，而hashmap采用链表方式来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HashMap">
+<meta property="og:url" content="http://nonoy.gitee.io/myblob/2020/02/20/HashMap/index.html">
+<meta property="og:site_name" content="liuhoudun">
+<meta property="og:description" content="HashMap 实现原理分析一.存储结构​    HashMap使用数组加entity链表的方式进行存储数据 ​    hash函数通过对象hashcode 算出 而对象的hashcode方法则依赖于native实现，hashcode可以理解为与对象存储地址相关。 本质上 算出hash值之后，只需要令hash值与数组长度取余 即可知道对象在数组中的index索引，而hashmap采用链表方式来">
+<meta property="og:locale" content="cn">
+<meta property="og:image" content="http://nonoy.gitee.io/myblob/images/og_image.png">
+<meta property="article:published_time" content="2020-02-20T03:57:38.571Z">
+<meta property="article:modified_time" content="2020-02-13T09:37:41.228Z">
+<meta property="article:author" content="liu houdun">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://nonoy.gitee.io/myblob/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/myblob/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css">
+
+
+    
+    
+<style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+
+    
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+
+    
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+    
+    
+    
+    
+<link rel="stylesheet" href="/myblob/css/back-to-top.css">
+
+    
+    
+    
+    
+    
+    
+    
+    <link rel="stylesheet" href="/myblob/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+    
+    
+    
+
+
+<link rel="stylesheet" href="/myblob/css/style.css">
+</head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/myblob/">
+            
+                <img src="/myblob/images/logo.svg" alt="HashMap" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/myblob/">主页</a>
+                
+                <a class="navbar-item"
+                href="/myblob/archives">文章</a>
+                
+                <a class="navbar-item"
+                href="/myblob/categories">目录</a>
+                
+                <a class="navbar-item"
+                href="/myblob/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    <a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                
+                <a class="navbar-item search" title="Suche" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main">
+<div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-02-20T03:57:38.571Z">2020-02-20</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    11 minutes lesen (Über 1686 Worte)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                HashMap
+            
+        </h1>
+        <div class="content">
+            <hr>
+<hr>
+<h1 id="HashMap-实现原理分析"><a href="#HashMap-实现原理分析" class="headerlink" title="HashMap 实现原理分析"></a>HashMap 实现原理分析</h1><h3 id="一-存储结构"><a href="#一-存储结构" class="headerlink" title="一.存储结构"></a>一.存储结构</h3><p>​    HashMap使用数组加entity链表的方式进行存储数据</p>
+<p>​    hash函数通过对象hashcode 算出 而对象的hashcode方法则依赖于native实现，hashcode可以理解为与对象存储地址相关。</p>
+<p>本质上 算出hash值之后，只需要令hash值与数组长度取余 即可知道对象在数组中的index索引，而hashmap采用链表方式来解决hash碰撞问题，故在数组index位置上，会将待插入的对象放置在链表末尾(1.8之后)</p>
+<p>hash中的基本node结构</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> 每一对key - value结构存储的mode数据结构</span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">Map</span>.<span class="title">Entry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> hash;</span><br><span class="line">        <span class="keyword">final</span> K key;</span><br><span class="line">        V value;</span><br><span class="line">        Node&lt;K,V&gt; next;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>hash值计算函数,对于null值 会被直接映射到0位置上</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> h;</span><br><span class="line">    <span class="keyword">return</span> (key == <span class="keyword">null</span>) ? <span class="number">0</span> : (h = key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>hashmap 中包含了 key value   entry 三个的容器和迭代器所以在hashmap中  可以对key value 进行迭代，也可以使用entry的迭代器对每一对 k-v 进行遍历操作 ，并且 在三者（key value   entry）的容器中 还实现了Spliterator 接口 支持通过写action类对容器中的值进行操作</p>
+<h3 id="二-Map-接口说明"><a href="#二-Map-接口说明" class="headerlink" title="二.Map 接口说明"></a>二.Map 接口说明</h3><p>interface:map是abstract:Dictionary的替代，map不能包含重复的key且每个key最多只能映射到一个value。map接口中包含了三个集合类collection的视图collection-view,分别是key的set集合，value的set集合以及key-value maping的set集合，在任何map的实现类中，三种集合中元素顺序order通常与各自集合迭代器的顺讯相同，但是在treeMap(采用红黑树实现)中有特殊规定。</p>
+<p>note:对于可变类型作为key值需要特别注意，因为key值运算得到hashNumber 的过程中与key对象的内存地址以及内容有关系，而value则无所谓，而且map类自身也不要使用作为key值，尽管这样做在程序上是可行的。</p>
+<p>所有的通用map都需要实现两个“标准的”构造器： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">map();&#x2F;&#x2F;无参构造</span><br><span class="line">map(map col);&#x2F;&#x2F;参数为map的构造器</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Map接口中包含了一个数据结构Entry的interface定义，如下所示:</p>
+<p><img src="./Entry.png" alt=""></p>
+<h3 id="三-核心方法"><a href="#三-核心方法" class="headerlink" title="三.核心方法"></a>三.核心方法</h3><p>扩容阈值调整:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAXIMUM_CAPACITY = <span class="number">1</span> &lt;&lt; <span class="number">30</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">*这个方法是返回&gt;=cap的最小的2的整数次幂</span></span><br><span class="line"><span class="comment">* -1 用补码表示为 0xffff_ffff</span></span><br><span class="line"><span class="comment">*Integer.numberOfLeadingZeros() 方法返回给定的int整数cap-1高位0的个数</span></span><br><span class="line"><span class="comment">*example :</span></span><br><span class="line"><span class="comment">*   cap = 20 =&gt;cap -1 = 19 =   0x10011    即19(10) 对于32位整数 高位有27个0</span></span><br><span class="line"><span class="comment">* 	0xffff_ffff &gt;&gt;&gt; 27  = 11111B (逻辑右移27位，高位补0)</span></span><br><span class="line"><span class="comment">*	return 11111B + 1 = 100000B = 2^5 = 32</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">tableSizeFor</span><span class="params">(<span class="keyword">int</span> cap)</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> n = -<span class="number">1</span> &gt;&gt;&gt; Integer.numberOfLeadingZeros(cap - <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> (n &lt; <span class="number">0</span>) ? <span class="number">1</span> : (n &gt;= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>hashmap的扩容函数 <code>resize</code> 分析: </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> Node&lt;K,V&gt;[] resize() &#123;</span><br><span class="line">     Node&lt;K,V&gt;[] oldTab = table;</span><br><span class="line">     <span class="keyword">int</span> oldCap = (oldTab == <span class="keyword">null</span>) ? <span class="number">0</span> : oldTab.length;</span><br><span class="line">     <span class="keyword">int</span> oldThr = threshold;</span><br><span class="line">     <span class="keyword">int</span> newCap, newThr = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//首先计算扩容后 容量 和 阈值</span></span><br><span class="line">     <span class="keyword">if</span> (oldCap &gt; <span class="number">0</span>) &#123;</span><br><span class="line">         <span class="comment">//oldCap大于等于最大值  只将扩容阈值增加到最大</span></span><br><span class="line">         <span class="keyword">if</span> (oldCap &gt;= MAXIMUM_CAPACITY) &#123;</span><br><span class="line">             threshold = Integer.MAX_VALUE;</span><br><span class="line">             <span class="keyword">return</span> oldTab;</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="comment">//oldCap 不大于 最大值下  将 capcity 值和 threshold 阈值 扩容到两倍</span></span><br><span class="line">         <span class="keyword">else</span> <span class="keyword">if</span> ((newCap = oldCap &lt;&lt; <span class="number">1</span>) &lt; MAXIMUM_CAPACITY &amp;&amp;</span><br><span class="line">                  oldCap &gt;= DEFAULT_INITIAL_CAPACITY)</span><br><span class="line">             newThr = oldThr &lt;&lt; <span class="number">1</span>; <span class="comment">// double threshold</span></span><br><span class="line">     &#125;</span><br><span class="line">    <span class="comment">//当 capcity&lt;0 扩容阈值threshold&gt;0  新capcity = threshold</span></span><br><span class="line">     <span class="keyword">else</span> <span class="keyword">if</span> (oldThr &gt; <span class="number">0</span>)</span><br><span class="line">         newCap = oldThr;</span><br><span class="line">     <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">//capcity&lt;0 threshold&lt;0  默认初始化操作</span></span><br><span class="line">         newCap = DEFAULT_INITIAL_CAPACITY;</span><br><span class="line">         newThr = (<span class="keyword">int</span>)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);</span><br><span class="line">     &#125;</span><br><span class="line">    <span class="comment">//经过上面的步骤 当阈值 == 0  需要对阈值进行调整</span></span><br><span class="line">     <span class="keyword">if</span> (newThr == <span class="number">0</span>) &#123;</span><br><span class="line">         <span class="comment">//当 capcity &lt;max时 阈值为 默认的 capcity * 负载因子(默认0.75)</span></span><br><span class="line">         <span class="keyword">float</span> ft = (<span class="keyword">float</span>)newCap * loadFactor;</span><br><span class="line">         newThr = (newCap &lt; MAXIMUM_CAPACITY &amp;&amp; ft &lt; (<span class="keyword">float</span>)MAXIMUM_CAPACITY ?</span><br><span class="line">                   (<span class="keyword">int</span>)ft : Integer.MAX_VALUE);</span><br><span class="line">     &#125;</span><br><span class="line">     threshold = newThr;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    *接下来对原有Node[] table 进行扩容 </span></span><br><span class="line"><span class="comment">    *每个数组元素table[index]中 对指向的链与红黑树分别处理</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">     <span class="meta">@SuppressWarnings</span>(&#123;<span class="string">"rawtypes"</span>,<span class="string">"unchecked"</span>&#125;)</span><br><span class="line">     Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])<span class="keyword">new</span> Node[newCap];</span><br><span class="line">     table = newTab;</span><br><span class="line">     <span class="keyword">if</span> (oldTab != <span class="keyword">null</span>) &#123;</span><br><span class="line">         <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; oldCap; ++j) &#123;</span><br><span class="line">             Node&lt;K,V&gt; e;</span><br><span class="line">             <span class="keyword">if</span> ((e = oldTab[j]) != <span class="keyword">null</span>) &#123;</span><br><span class="line">                 oldTab[j] = <span class="keyword">null</span>;</span><br><span class="line">                 <span class="keyword">if</span> (e.next == <span class="keyword">null</span>)</span><br><span class="line">                     <span class="comment">//对于 单个 Node  直接计算元素位置</span></span><br><span class="line">                     newTab[e.hash &amp; (newCap - <span class="number">1</span>)] = e;</span><br><span class="line">                 <span class="comment">//对红黑树做处理</span></span><br><span class="line">                 <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">                     ((TreeNode&lt;K,V&gt;)e).split(<span class="keyword">this</span>, newTab, j, oldCap);</span><br><span class="line">                 <span class="keyword">else</span> &#123; <span class="comment">// preserve order</span></span><br><span class="line">                     <span class="comment">//链表形式的Node 元素</span></span><br><span class="line">                     Node&lt;K,V&gt; loHead = <span class="keyword">null</span>, loTail = <span class="keyword">null</span>;</span><br><span class="line">                     Node&lt;K,V&gt; hiHead = <span class="keyword">null</span>, hiTail = <span class="keyword">null</span>;</span><br><span class="line">                     Node&lt;K,V&gt; next;</span><br><span class="line">                     <span class="keyword">do</span> &#123;</span><br><span class="line">                         next = e.next;</span><br><span class="line">                         <span class="comment">/**</span></span><br><span class="line"><span class="comment">                         * A % B操作的原理为模运算，是计算 X = (A - n*B) &lt; B 的最小正整数X  </span></span><br><span class="line"><span class="comment">                         * hashMap中要计算 hash(key) % capcity   </span></span><br><span class="line"><span class="comment">                         * 而这里有一个非常特殊的规定，即 capcity 为 2^n</span></span><br><span class="line"><span class="comment">                         * 在取余操作中 当 B 为2^n 时 </span></span><br><span class="line"><span class="comment">                         * 则可以通过表达式  X &amp; (2^n - 1) 操作来简化取余过程</span></span><br><span class="line"><span class="comment">                         * 以下是此种情形下 A % B 的说明:(借用汇编对二进制的表示方法)</span></span><br><span class="line"><span class="comment">                         * AH(A比B的高位) 不会对结果产生影响,而产生结果影响的实际上是 AL(低位)</span></span><br><span class="line"><span class="comment">                         * 我们将A的二进制分为三块:</span></span><br><span class="line"><span class="comment">                         *	A = AH-M(0 or 1)-AL,则 B = BH(全0) -1- BL(全0)</span></span><br><span class="line"><span class="comment">                         * 可以得出  AL表示的整数值即为 A%B 的结果</span></span><br><span class="line"><span class="comment">                         * 而只有 M 这一位对 A &amp; B 产生了影响  而这一位&amp;运算的结果反映了:</span></span><br><span class="line"><span class="comment">                         * 是否存在 B &lt;= (X = A - n*B) &lt; B*2, 即是否有 A % (B*2) &gt;= B  </span></span><br><span class="line"><span class="comment">                         * 在这种情况下(A&amp;B != 0)需要对原来的hash结果,加上一个 oldCap的偏移量    						   * 这里给出一个实际的example:</span></span><br><span class="line"><span class="comment">                         * capcity = 16   objA.hashValue = 5  objB.hashValue = 21</span></span><br><span class="line"><span class="comment">                         * 扩容前：</span></span><br><span class="line"><span class="comment">                         *	15 = 0000 1111   &amp;</span></span><br><span class="line"><span class="comment">                         *	 5 = 0000 0101  ---&gt;  0000 0101 = 5</span></span><br><span class="line"><span class="comment">                         *	21 = 0001 0101  ---&gt;  0000 0101 = 5</span></span><br><span class="line"><span class="comment">                         * 扩容后：</span></span><br><span class="line"><span class="comment">                         *	31 = 0001 1111   &amp;</span></span><br><span class="line"><span class="comment">                         *	 5 = 0000 0101  ---&gt;  0000 0101 = 5</span></span><br><span class="line"><span class="comment">                         *	21 = 0001 0101  ---&gt;  0001 0101 = 21</span></span><br><span class="line"><span class="comment">                         */</span></span><br><span class="line"></span><br><span class="line">                         <span class="keyword">if</span> ((e.hash &amp; oldCap) == <span class="number">0</span>) &#123;</span><br><span class="line">                             </span><br><span class="line">                             <span class="keyword">if</span> (loTail == <span class="keyword">null</span>)</span><br><span class="line">                                 <span class="comment">//这里是用来确定链表中的首元素  只在第一次运行时会进入</span></span><br><span class="line">                                 loHead = e;</span><br><span class="line">                             <span class="keyword">else</span></span><br><span class="line">                                 <span class="comment">//成链操作</span></span><br><span class="line">                                 loTail.next = e;</span><br><span class="line">                             <span class="comment">//链表的操作元素  每次遍历都会在loTail指向的元素进行添加</span></span><br><span class="line">                             loTail = e;</span><br><span class="line">                         &#125;</span><br><span class="line">                         <span class="comment">//需要改变元素在数组中位置</span></span><br><span class="line">                         <span class="keyword">else</span> &#123;</span><br><span class="line">                             <span class="keyword">if</span> (hiTail == <span class="keyword">null</span>)</span><br><span class="line">                                 <span class="comment">//保存首地址</span></span><br><span class="line">                                 hiHead = e;</span><br><span class="line">                             <span class="keyword">else</span></span><br><span class="line">                                 <span class="comment">//成链操作</span></span><br><span class="line">                                 hiTail.next = e;</span><br><span class="line">                             hiTail = e;</span><br><span class="line">                         &#125;</span><br><span class="line">                     &#125; <span class="keyword">while</span> ((e = next) != <span class="keyword">null</span>);</span><br><span class="line">                     <span class="comment">//将链首元素放到对应的数组index中</span></span><br><span class="line">                     <span class="keyword">if</span> (loTail != <span class="keyword">null</span>) &#123;</span><br><span class="line">                         loTail.next = <span class="keyword">null</span>;</span><br><span class="line">                         newTab[j] = loHead;</span><br><span class="line">                     &#125;</span><br><span class="line">                     <span class="keyword">if</span> (hiTail != <span class="keyword">null</span>) &#123;</span><br><span class="line">                         hiTail.next = <span class="keyword">null</span>;</span><br><span class="line">                         newTab[j + oldCap] = hiHead;</span><br><span class="line">                     &#125;</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">return</span> newTab;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><code>putVal</code> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> V <span class="title">putVal</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">boolean</span> onlyIfAbsent,</span></span></span><br><span class="line"><span class="function"><span class="params">                  <span class="keyword">boolean</span> evict)</span> </span>&#123;</span><br><span class="line">       Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="keyword">int</span> n, i;</span><br><span class="line">       <span class="keyword">if</span> ((tab = table) == <span class="keyword">null</span> || (n = tab.length) == <span class="number">0</span>)</span><br><span class="line">           n = (tab = resize()).length;</span><br><span class="line">    	<span class="comment">//这里是通过当前哈希值与桶长度做取余运算 然后判断是否为链表头结点</span></span><br><span class="line">       <span class="keyword">if</span> ((p = tab[i = (n - <span class="number">1</span>) &amp; hash]) == <span class="keyword">null</span>)</span><br><span class="line">           tab[i] = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">       <span class="keyword">else</span> &#123;</span><br><span class="line">           Node&lt;K,V&gt; e; K k;</span><br><span class="line">           <span class="comment">/**这里分为三种情况</span></span><br><span class="line"><span class="comment">           * 1 要插入的值正好是链表头结点（相当于变成replace）</span></span><br><span class="line"><span class="comment">           * 2 要插入的值不在头结点，且结点采用红黑树</span></span><br><span class="line"><span class="comment">           * 3 要插入的值不在头结点，且结点采用链表</span></span><br><span class="line"><span class="comment">           */</span></span><br><span class="line">           <span class="keyword">if</span> (p.hash == hash &amp;&amp;</span><br><span class="line">               ((k = p.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">               <span class="comment">//情况一 直接修改值</span></span><br><span class="line">               e = p;</span><br><span class="line">           <span class="keyword">else</span> <span class="keyword">if</span> (p <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">               e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(<span class="keyword">this</span>, tab, hash, key, value);</span><br><span class="line">           <span class="keyword">else</span> &#123;</span><br><span class="line">               <span class="comment">//链表的情况</span></span><br><span class="line">               <span class="comment">//从链表头查询到链表尾部  如果有就replace  没有就新增</span></span><br><span class="line">               <span class="keyword">for</span> (<span class="keyword">int</span> binCount = <span class="number">0</span>; ; ++binCount) &#123;</span><br><span class="line">                   <span class="keyword">if</span> ((e = p.next) == <span class="keyword">null</span>) &#123;</span><br><span class="line">                       p.next = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">                       <span class="comment">//链表转化为红黑树的判定</span></span><br><span class="line">                       <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD - <span class="number">1</span>) <span class="comment">// -1 for 1st</span></span><br><span class="line">                           treeifyBin(tab, hash);</span><br><span class="line">                       <span class="keyword">break</span>;</span><br><span class="line">                   &#125;</span><br><span class="line">                   <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                       ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                       <span class="keyword">break</span>;</span><br><span class="line">                   p = e;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123; <span class="comment">// existing mapping for key</span></span><br><span class="line">               V oldValue = e.value;</span><br><span class="line">               <span class="keyword">if</span> (!onlyIfAbsent || oldValue == <span class="keyword">null</span>)</span><br><span class="line">                   e.value = value;</span><br><span class="line">               afterNodeAccess(e);</span><br><span class="line">               <span class="keyword">return</span> oldValue;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       ++modCount;</span><br><span class="line">       <span class="keyword">if</span> (++size &gt; threshold)</span><br><span class="line">           resize();</span><br><span class="line">       afterNodeInsertion(evict);</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="menu-label has-text-centered">Gefällt Ihnen der Artikel? Unterstützen Sie den Autor mit</h3>
+        <div class="buttons is-centered">
+            
+                
+<div class="notification is-danger">
+    You forgot to set the <code>qrcode</code> for Alipay. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+                
+<div class="notification is-danger">
+    You forgot to set the <code>qrcode</code> for Wechat. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+                <!-- Visit https://www.paypal.com/donate/buttons/ to get your donate button -->
+
+<a class="button is-warning donate" onclick="document.getElementById(&#39;paypal-donate-form&#39;).submit()">
+    <span class="icon is-small">
+        <i class="fab fa-paypal"></i>
+    </span>
+    <span>Paypal</span>
+</a>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" rel="noopener" id="paypal-donate-form">
+    <input type="hidden" name="cmd" value="_donations" />
+    <input type="hidden" name="business" value="liuhoudun95@foxmail.com" />
+    <input type="hidden" name="currency_code" value="USD" />
+</form>
+
+                
+                
+<div class="notification is-danger">
+    You forgot to set the <code>url</code> Patreon. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+        </div>
+    </div>
+</div>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/myblob/2020/02/20/ConcurrentHashMap/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">ConcurrentHashMap</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/myblob/2020/01/30/ArrayList/">
+                <span class="level-item">ArrayList</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left is-sticky">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                    <figure class="image is-128x128 has-mb-6">
+                        <img class="" src="/myblob/images/avatar.png" alt="刘厚盾">
+                    </figure>
+                    
+                    <p class="is-size-4 is-block">
+                        刘厚盾
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        计算机学习者
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>杭州</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        Posts
+                    </p>
+                    <a href="/myblob/archives">
+                        <p class="title has-text-weight-normal">
+                            5
+                        </p>
+                    </a>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        Kategorien
+                    </p>
+                    <a href="/myblob/categories">
+                        <p class="title has-text-weight-normal">
+                            0
+                        </p>
+                    </a>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        Tags
+                    </p>
+                    <a href="/myblob/tags">
+                        <p class="title has-text-weight-normal">
+                            0
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/ppoffice" target="_blank" rel="noopener">
+                Folgen</a>
+        </div>
+        
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank" rel="noopener"
+                title="Github" href="https://gitee.com/nonoy">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" rel="noopener"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" rel="noopener"
+                title="RSS" href="/myblob/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+    
+        <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            Links
+        </h3>
+        <ul class="menu-list">
+        
+            <li>
+                <a class="level is-mobile" href="https://hexo.io" target="_blank" rel="noopener">
+                    <span class="level-left">
+                        <span class="level-item">Hexo</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">hexo.io</span>
+                    </span>
+                </a>
+            </li>
+        
+            <li>
+                <a class="level is-mobile" href="https://github.com/ppoffice" target="_blank" rel="noopener">
+                    <span class="level-left">
+                        <span class="level-item">PPOffice</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">github.com</span>
+                    </span>
+                </a>
+            </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                Kategorien
+            </h3>
+            <ul class="menu-list">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+    
+        
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen is-sticky">
+        
+            <div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            Letzte Einträge
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/myblob/2020/02/20/Unsigned/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/myblob/images/thumbnail.svg" alt="Unsigned">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-20T03:57:38.602Z">2020-02-20</time></div>
+                    <a href="/myblob/2020/02/20/Unsigned/" class="title has-link-black-ter is-size-6 has-text-weight-normal">Unsigned</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/myblob/2020/02/20/Reflect/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/myblob/images/thumbnail.svg" alt="Reflect">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-20T03:57:38.587Z">2020-02-20</time></div>
+                    <a href="/myblob/2020/02/20/Reflect/" class="title has-link-black-ter is-size-6 has-text-weight-normal">Reflect</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/myblob/2020/02/20/ConcurrentHashMap/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/myblob/images/thumbnail.svg" alt="ConcurrentHashMap">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-20T03:57:38.571Z">2020-02-20</time></div>
+                    <a href="/myblob/2020/02/20/ConcurrentHashMap/" class="title has-link-black-ter is-size-6 has-text-weight-normal">ConcurrentHashMap</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/myblob/2020/02/20/HashMap/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/myblob/images/thumbnail.svg" alt="HashMap">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-20T03:57:38.571Z">2020-02-20</time></div>
+                    <a href="/myblob/2020/02/20/HashMap/" class="title has-link-black-ter is-size-6 has-text-weight-normal">HashMap</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/myblob/2020/01/30/ArrayList/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/myblob/images/thumbnail.svg" alt="ArrayList">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-01-30T08:50:16.041Z">2020-01-30</time></div>
+                    <a href="/myblob/2020/01/30/ArrayList/" class="title has-link-black-ter is-size-6 has-text-weight-normal">ArrayList</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            Archive
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/myblob/archives/2020/02/">
+                <span class="level-start">
+                    <span class="level-item">February 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">4</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/myblob/archives/2020/01/">
+                <span class="level-start">
+                    <span class="level-item">January 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                Tags
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+            </div>
+        </div>
+    </div>
+</div>
+        
+        </div>
+    
+</div>
+
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only has-order-3 column-right is-sticky">
+    
+        <div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            Letzte Einträge
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/myblob/2020/02/20/Unsigned/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/myblob/images/thumbnail.svg" alt="Unsigned">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-20T03:57:38.602Z">2020-02-20</time></div>
+                    <a href="/myblob/2020/02/20/Unsigned/" class="title has-link-black-ter is-size-6 has-text-weight-normal">Unsigned</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/myblob/2020/02/20/Reflect/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/myblob/images/thumbnail.svg" alt="Reflect">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-20T03:57:38.587Z">2020-02-20</time></div>
+                    <a href="/myblob/2020/02/20/Reflect/" class="title has-link-black-ter is-size-6 has-text-weight-normal">Reflect</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/myblob/2020/02/20/ConcurrentHashMap/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/myblob/images/thumbnail.svg" alt="ConcurrentHashMap">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-20T03:57:38.571Z">2020-02-20</time></div>
+                    <a href="/myblob/2020/02/20/ConcurrentHashMap/" class="title has-link-black-ter is-size-6 has-text-weight-normal">ConcurrentHashMap</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/myblob/2020/02/20/HashMap/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/myblob/images/thumbnail.svg" alt="HashMap">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-20T03:57:38.571Z">2020-02-20</time></div>
+                    <a href="/myblob/2020/02/20/HashMap/" class="title has-link-black-ter is-size-6 has-text-weight-normal">HashMap</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/myblob/2020/01/30/ArrayList/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/myblob/images/thumbnail.svg" alt="ArrayList">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-01-30T08:50:16.041Z">2020-01-30</time></div>
+                    <a href="/myblob/2020/01/30/ArrayList/" class="title has-link-black-ter is-size-6 has-text-weight-normal">ArrayList</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            Archive
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/myblob/archives/2020/02/">
+                <span class="level-start">
+                    <span class="level-item">February 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">4</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/myblob/archives/2020/01/">
+                <span class="level-start">
+                    <span class="level-item">January 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                Tags
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/myblob/">
+                
+                    <img src="/myblob/images/logo.svg" alt="HashMap" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 liu houdun&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("cn");</script>
+
+
+<script>
+var IcarusThemeSettings = {
+    site: {
+        url: 'http://nonoy.gitee.io/myblob',
+        external_link: {"enable":true,"exclude":[]}
+    },
+    article: {
+        highlight: {
+            clipboard: true,
+            fold: 'unfolded'
+        }
+    }
+};
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+
+
+
+
+
+<script src="/myblob/js/animation.js"></script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+<script src="/myblob/js/gallery.js" defer></script>
+
+
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+
+<a id="back-to-top" title="Zurück nach oben" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/myblob/js/back-to-top.js" defer></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="/myblob/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="Tippen Sie etwas..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: 'Posts',
+                PAGES: 'Seiten',
+                CATEGORIES: 'Kategorien',
+                TAGS: 'Tags',
+                UNTITLED: '(Unbenannt)',
+            },
+            CONTENT_URL: '/myblob/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/myblob/js/insight.js" defer></script>
+<link rel="stylesheet" href="/myblob/css/search.css">
+<link rel="stylesheet" href="/myblob/css/insight.css">
+    
+</body>
+</html>
